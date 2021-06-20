@@ -1,12 +1,17 @@
 import setuptools
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setuptools.setup(
-    name="bigquery-validator",
-    version="0.0.1",
+    name="python-bigquery-validator",
+    version="0.0.3",
     author="Conall Daly",
-    author_email="conall.daly@livescore.com",
+    author_email="conalldalydev@gmail.com",
     description="Python module for validating BigQuery sql commands with support for Jinja templated variables",
-    packages=setuptools.find_packages(),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url='https://github.com/tunnelWithAC/python-bigquery-validator',
     install_requires=[
         'google-cloud-bigquery',
         'Jinja2',
@@ -16,6 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
-    url=''
+    packages=setuptools.find_packages(),
+    python_requires='>=3.6'
 )
