@@ -37,13 +37,13 @@ class BigQueryValidator:
         params = {**default_params, **extra_params}
         return params
 
-    def _render_templated_query(self, templated_query):
+    def render_templated_query(self, templated_query):
         # Convert the Jinja templated SQL to a valid query
         templated_query = templated_query.replace('params.', '')  # need this to get formatting correct
         t = Template(templated_query)
         return t.render(self.params)
 
-    def _dry_run_query(self, query):
+    def dry_run_query(self, query):
         # Construct a BigQuery client object.
         job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=False)
 
@@ -61,8 +61,8 @@ class BigQueryValidator:
 
     def validate_query(self, templated_query):
         try:
-            formatted_query = self._render_templated_query(templated_query)
-            return self._dry_run_query(formatted_query)
+            formatted_query = self.render_templated_query(templated_query)
+            return self.dry_run_query(formatted_query)
             return True
         except Exception as e:
             logging.error(e)
@@ -73,8 +73,8 @@ class BigQueryValidator:
         try:
             f = open(file_path, "r")
             templated_query = f.read()
-            formatted_query = self._render_templated_query(templated_query)
-            return self._dry_run_query(formatted_query)
+            formatted_query = self.render_templated_query(templated_query)
+            return self.dry_run_query(formatted_query)
         except Exception as e:
             logging.error(e)
             return False
