@@ -1,8 +1,9 @@
-import argparse
 import importlib.util
 import logging
 import os
 import warnings
+
+from config.config import Config
 
 from google.cloud import bigquery
 from jinja2 import Template
@@ -15,14 +16,18 @@ class BigQueryValidator:
 
     def __init__(self,
                  dry_run=True,
+                 params={},
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
+        self.config = Config()
+        self.params = params
         self.params = self.load_params()
         self.dry_run = dry_run
         self.use_query_cache = use_query_cache
 
     def load_params(self):
-        from bigquery_validator.config import default_params
+
+        # from bigquery_validator import bigquery_validator_config
 
         extra_params = {}
 
@@ -32,7 +37,7 @@ class BigQueryValidator:
             from query_validator_config import params as extra_params
             logging.info('Loading user defined params')
 
-        params = {**default_params, **extra_params}
+        params = {**self.config.get_default_params(), **extra_params}
         return params
 
     def render_templated_query(self, templated_query):
@@ -69,6 +74,7 @@ class BigQueryValidator:
 
     def validate_query_from_file(self, file_path):
         try:
+            # todo check if file exists
             f = open(file_path, "r")
             templated_query = f.read()
             formatted_query = self.render_templated_query(templated_query)
@@ -76,25 +82,3 @@ class BigQueryValidator:
         except Exception as e:
             logging.error(e)
             return False
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--function', type=str, help='Function to be called', required=True)
-    parser.add_argument('-p', '--param', type=str, help='Parameter for function', required=True)
-    args = parser.parse_args()
-    function = args.function
-    param = args.param
-
-    bigquery_validator = BigQueryValidator()
-    if function == 'render_templated_query':
-        bigquery_validator.render_templated_query('select date("{{ params.date }}") as date')
-    elif function == 'dry_run_query':
-        bigquery_validator.dry_run_query('select true')
-    elif function == 'validate_query':
-        print('vw')
-        bigquery_validator.validate_query('select true')
-    elif function == 'validate_query_from_file':
-        bigquery_validator.validate_query('./valid_query.sql')
-    else:
-        raise ValueError('Invalid argument passed for function')

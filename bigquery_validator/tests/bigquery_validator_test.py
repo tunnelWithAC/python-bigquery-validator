@@ -1,6 +1,8 @@
+print(__name__)
 import unittest
 
-from bigquery_validator import BigQueryValidator
+from bigquery_validator.bigquery_validator import BigQueryValidator
+# from bigquery_validator_config import get_default_params
 
 
 class BigqueryValidatorTest(unittest.TestCase):
@@ -18,9 +20,9 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertFalse(bad_sql)
 
     def test_valid_query_from_file_returns_true(self):
-        valid_sql = self.bigquery_validator.validate_query_from_file("valid_query.sql")
+        valid_sql = self.bigquery_validator.validate_query_from_file("./bigquery_validator/tests/valid_query.sql")
         self.assertTrue(valid_sql)
 
     def test_bad_query_from_file_returns_false(self):
-        bad_sql = self.bigquery_validator.validate_query_from_file("bad_query.sql")
+        bad_sql = self.bigquery_validator.validate_query_from_file("./bigquery_validator/tests/bad_query.sql")
         self.assertFalse(bad_sql)
