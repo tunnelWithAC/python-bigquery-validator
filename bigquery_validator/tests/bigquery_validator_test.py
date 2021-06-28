@@ -26,3 +26,5 @@ class BigqueryValidatorTest(unittest.TestCase):
     def test_bad_query_from_file_returns_false(self):
         bad_sql = self.bigquery_validator.validate_query_from_file("./bigquery_validator/tests/bad_query.sql")
         self.assertFalse(bad_sql)
+
+    # test load extra params

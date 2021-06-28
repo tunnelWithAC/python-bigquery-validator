@@ -16,19 +16,14 @@ class BigQueryValidator:
 
     def __init__(self,
                  dry_run=True,
-                 params={},
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.config = Config()
-        self.params = params
-        self.params = self.load_params()
         self.dry_run = dry_run
+        self.params = self.load_params()
         self.use_query_cache = use_query_cache
 
     def load_params(self):
-
-        # from bigquery_validator import bigquery_validator_config
-
         extra_params = {}
 
         # TODO: future enhancement look for a global config file so that they don't need to be defined in each project
@@ -60,6 +55,7 @@ class BigQueryValidator:
 
         # A dry run query completes immediately.
         logging.info("This query will process {} bytes.".format(query_job.total_bytes_processed))
+        # todo: warning if cost of query is above certain amount
         return True
 
     def validate_query(self, templated_query):

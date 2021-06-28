@@ -15,16 +15,21 @@ def main():
     bq_config = Config()
     bigquery_validator = BigQueryValidator(bq_config)
     if function == 'render_templated_query':
-        bigquery_validator.render_templated_query(param)
+        result = bigquery_validator.render_templated_query(param)
     elif function == 'dry_run_query':
-        bigquery_validator.dry_run_query(param)
+        valid_query = bigquery_validator.dry_run_query(param)
+        result = f'Query is {valid_query}'
     elif function == 'validate_query':
-        print('vw')
-        bigquery_validator.validate_query(param)
+        valid_query = bigquery_validator.validate_query(param)
+        result = f'Query is {valid_query}'
     elif function == 'validate_query_from_file':
-        bigquery_validator.validate_query_from_file(param)
+        valid_query = bigquery_validator.validate_query_from_file(param)
+        result = f'Query is {valid_query}'
     else:
         raise ValueError('Invalid argument passed for function')
+
+    # Accept arg for print to console or print to file
+    print(result)
 
 
 if __name__ == '__main__':
