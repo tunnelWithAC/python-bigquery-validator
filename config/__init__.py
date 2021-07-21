@@ -1,1 +1,1 @@
-from .config import Config
+from .config import get_default_params
