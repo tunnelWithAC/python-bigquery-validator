@@ -39,15 +39,16 @@ class BigQueryValidator(object):
         self.use_query_cache = use_query_cache
 
     def load_params(self):
-        extra_params = {}
+        params = get_default_params()
 
         # TODO: future enhancement look for a global config file so that they don't need to be defined in each project
         logging.info(f'Looking for query_validator_config.py in {os.getcwd()}')
         if importlib.util.find_spec('query_validator_config') is not None:
             from query_validator_config import params as extra_params
             logging.info('Loading user defined params')
+            params = {**get_default_params(), **extra_params}
 
-        params = {**get_default_params(), **extra_params}
+        # params = {**get_default_params(), **extra_params}
         return params
 
     def render_templated_query(self, templated_query):
@@ -57,10 +58,10 @@ class BigQueryValidator(object):
         return t.render(self.params)
 
     # todo finish
-    def parameterize_sql(self, query):
-        for k, v in self.params.items():
-            query = query.replace(k, f'{{ params.v }}'
-        return query
+    # def parameterize_sql(self, query):
+    #     for k, v in self.params.items():
+    #         query = query.replace(k, f'{{ params.v }}'
+    #     return query
 
     def dry_run_query(self, query):
         try:
