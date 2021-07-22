@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import os
 import sys
 import unittest
@@ -40,4 +41,8 @@ class BigqueryValidatorTest(unittest.TestCase):
         test_param = self.bigquery_validator.params.get('environment')
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
 
-    # test load extra params
+    # def test_parameterize_sql_formats_default_param_correctly(self):
+    #     now = datetime.now() - timedelta(days=1)
+    #     ds = now.strftime('%Y-%m-%d')
+    #     parameterized_sql = self.bigquery_validator.parameterize_sql('select 2021-07-21')
+    #     self.assertEqual(parameterized_sql, 'select {{ ds }}', 'assert_extra_param_exists')

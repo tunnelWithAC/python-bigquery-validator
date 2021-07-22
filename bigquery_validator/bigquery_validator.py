@@ -47,8 +47,6 @@ class BigQueryValidator(object):
             from query_validator_config import params as extra_params
             logging.info('Loading user defined params')
             params = {**get_default_params(), **extra_params}
-
-        # params = {**get_default_params(), **extra_params}
         return params
 
     def render_templated_query(self, templated_query):
@@ -57,10 +55,15 @@ class BigQueryValidator(object):
         t = Template(templated_query)
         return t.render(self.params)
 
-    # todo finish
+    # # todo finish
     # def parameterize_sql(self, query):
+    #     default_params = get_default_params()
     #     for k, v in self.params.items():
-    #         query = query.replace(k, f'{{ params.v }}'
+    #         # default params do not require 'param.' prefix
+    #         if k in default_params:
+    #             query = query.replace(f'{{{{  {k} }}}}', v)
+    #         else:
+    #             query = query.replace(f'{{{{ params.{k} }}}}', v)
     #     return query
 
     def dry_run_query(self, query):
