@@ -9,7 +9,7 @@ def datetime_to_ds(dt):
 
 
 def datetime_to_ds_nodash(dt):
-    return dt.strftime('%Y-%m-%d')
+    return dt.strftime('%Y%m%d')
 
 
 def get_default_params():
