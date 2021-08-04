@@ -31,9 +31,7 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertFalse(bad_sql, 'assert_bad_sql_from_file_fails_validation')
 
     def test_extra_params_are_loaded_from_file(self):
-        print(self.bigquery_validator.params)
         import importlib.util
-        print(importlib.util.find_spec('query_validator_config'))
 
         if importlib.util.find_spec('query_validator_config') is not None:
             from query_validator_config import params as extra_params
@@ -46,3 +44,5 @@ class BigqueryValidatorTest(unittest.TestCase):
     #     ds = now.strftime('%Y-%m-%d')
     #     parameterized_sql = self.bigquery_validator.parameterize_sql('select 2021-07-21')
     #     self.assertEqual(parameterized_sql, 'select {{ ds }}', 'assert_extra_param_exists')
+
+    # Test expected query size
