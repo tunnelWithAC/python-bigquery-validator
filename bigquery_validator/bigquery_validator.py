@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import logging
 import os
 import warnings
@@ -6,9 +7,8 @@ import warnings
 from google.cloud import bigquery
 from jinja2 import Template
 
-from bigquery_validator_util import get_default_params, print_success, print_failure, RESET_SEQ
+from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, RESET_SEQ
 
-# logging.basicConfig(level=os.environ.get("LOGLEVEL", "WARNING"))
 warnings.filterwarnings("ignore", "Your application has authenticated using end user credentials")
 
 
@@ -21,14 +21,39 @@ class BigQueryValidator(object):
         self.use_query_cache = use_query_cache
 
     def load_params(self):
+        from pathlib import Path
         params = get_default_params()
 
-        # TODO: future enhancement look for a global config file so that they don't need to be defined in each project
-        logging.info(f'Looking for query_validator_config.py in {os.getcwd()}')
-        if importlib.util.find_spec('query_validator_config') is not None:
-            from query_validator_config import params as extra_params
-            logging.info('Loading user defined params')
-            params = {**get_default_params(), **extra_params}
+
+        home = str(Path.home())
+        global_config_path = os.path.join(home, '.python_bigquery_validator/config.json')
+
+        if os.path.isfile(global_config_path):
+            try:
+                f = open(global_config_path, "r")
+                global_config_file_content = f.read()
+                global_config_params = json.loads(global_config_file_content)
+                params = {**get_default_params(), **global_config_params}
+                logging.info(f'Loaded params from global config file: {global_config_path}')
+            except Exception as e:
+                logging.error('Error reading params from global config file. No global params will be loaded.')
+
+        local_config_path = './bq_validator_config.json'
+        if os.path.isfile(local_config_path):
+            try:
+                f = open(local_config_path, "r")
+                local_config_file_content = f.read()
+                local_config_params = json.loads(local_config_file_content)
+                params = {**get_default_params(), **local_config_params}
+                logging.info(f'Loaded params from global config file: {local_config_path}')
+            except Exception as e:
+                logging.error('Error reading params from local config file. No global params will be loaded.')
+        # # TODO: future enhancement look for a global config file so that they don't need to be defined in each project
+        # logging.info(f'Looking for query_validator_config.py in {os.getcwd()}')
+        # if importlib.util.find_spec('query_validator_config') is not None:
+        #     from query_validator_config import params as extra_params
+        #     logging.info('Loading user defined params')
+        #     params = {**get_default_params(), **extra_params}
         return params
 
     def render_templated_query(self, templated_query):

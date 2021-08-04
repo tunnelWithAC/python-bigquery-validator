@@ -6,7 +6,7 @@ import unittest
 from bigquery_validator.bigquery_validator import BigQueryValidator
 
 
-sys.path.append(os.getcwd())
+# sys.path.append(os.getcwd())
 
 class BigqueryValidatorTest(unittest.TestCase):
 
@@ -31,11 +31,16 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertFalse(bad_sql, 'assert_bad_sql_from_file_fails_validation')
 
     def test_extra_params_are_loaded_from_file(self):
-        import importlib.util
-
-        if importlib.util.find_spec('query_validator_config') is not None:
-            from query_validator_config import params as extra_params
-            print(extra_params)
+        local_config_path = './bq_validator_config.json'
+        if os.path.isfile(local_config_path):
+            try:
+                f = open(local_config_path, "r")
+                local_config_file_content = f.read()
+                import json
+                local_config_params = json.loads(local_config_file_content)
+                print(local_config_params)
+            except Exception as e:
+                print(e)
         test_param = self.bigquery_validator.params.get('environment')
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
 
