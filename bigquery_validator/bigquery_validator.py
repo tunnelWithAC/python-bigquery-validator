@@ -1,52 +1,54 @@
-import importlib.util
+import json
 import logging
 import os
+from pathlib import Path
 import warnings
 
 from google.cloud import bigquery
 from jinja2 import Template
 
-from config.config import get_default_params  # Config
+from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, RESET_SEQ
 
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "WARNING"))
 warnings.filterwarnings("ignore", "Your application has authenticated using end user credentials")
-
-GREEN = '\033[92m'
-RED = '\x1b[31;21m'
-RESET_SEQ = "\033[0m"
-
-
-def print_success(msg, end=''):
-    if end != '' and end != '\n':
-        print("                      ", end=end)
-    print(f'{GREEN}{msg}{RESET_SEQ}', end=end)
-
-
-def print_failure(msg, end=''):
-    if end != '':
-        print("                      ", end=end)
-    print(f'{RED}{msg}{RESET_SEQ}', end=end)
 
 
 class BigQueryValidator(object):
 
     def __init__(self,
-                 dry_run=True,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
-        self.dry_run = dry_run
         self.params = self.load_params()
         self.use_query_cache = use_query_cache
 
+
     def load_params(self):
+        # load default params
         params = get_default_params()
 
-        # TODO: future enhancement look for a global config file so that they don't need to be defined in each project
-        logging.info(f'Looking for query_validator_config.py in {os.getcwd()}')
-        if importlib.util.find_spec('query_validator_config') is not None:
-            from query_validator_config import params as extra_params
-            logging.info('Loading user defined params')
-            params = {**get_default_params(), **extra_params}
+        # load params from global config
+        def load_config_from_file(config_path):
+            if os.path.isfile(config_path):
+                try:
+                    f = open(config_path, "r")
+                    config_file_content = f.read()
+                    config_params = json.loads(config_file_content)
+                    logging.info(f'Loaded params from global config file: {config_path}')
+                    return config_params
+                except Exception as e:
+                    logging.error('Error reading params from global config file. No global params will be loaded.')
+                    return {}
+            else:
+                return {}
+
+        home = str(Path.home())
+        global_config_path = os.path.join(home, '.python_bigquery_validator/config.json')
+        global_config_params = load_config_from_file(global_config_path)
+        params = {**params, **global_config_params}
+
+        # load params from local config
+        local_config_path = os.path.join(os.getcwd(), 'bq_validator_config.json')
+        local_config_params = load_config_from_file(local_config_path)
+        params = {**params, **local_config_params}
         return params
 
     def render_templated_query(self, templated_query):
@@ -67,8 +69,12 @@ class BigQueryValidator(object):
     #     return query
 
     def dry_run_query(self, query):
+        """Run a BigQuery query with dry_run set to True.
+        If the query succeeds it is valid and will return the estimated processing bytes required for the query.
+        An exception will be thrown if the query is not valid.
+        """
         try:
-            job_config = bigquery.QueryJobConfig(dry_run=self.dry_run, use_query_cache=self.use_query_cache)
+            job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=self.use_query_cache)
 
             # Start the query, passing in the extra configuration.
             query_job = self.bq_client.query(
@@ -90,13 +96,13 @@ class BigQueryValidator(object):
                 rounded_total = round(total_bytes / terabyte, 2)
                 byte_type = 'terabytes'
             elif total_bytes > gigabyte:
-                rounded_total = round(total_bytes / terabyte, 2)
+                rounded_total = round(total_bytes / gigabyte, 2)
                 byte_type = 'gigabytes'
             elif total_bytes > megabyte:
-                rounded_total = round(total_bytes / terabyte, 2)
+                rounded_total = round(total_bytes / megabyte, 2)
                 byte_type = 'megabytes'
             elif total_bytes > kilobyte:
-                rounded_total = round(total_bytes / terabyte, 2)
+                rounded_total = round(total_bytes / kilobyte, 2)
                 byte_type = 'kilobytes'
             else:
                 rounded_total = round(total_bytes / byte, 2)
@@ -111,7 +117,29 @@ class BigQueryValidator(object):
             syntax_error = split_error[0]
             return False, syntax_error
 
+
+    # TODO: validate output of query
+    # Stolen from Apache Beam
+    # https://github.com/apache/beam/blob/87e11644c44a4c677ec2faa78f50cdffbb33605a/sdks/python/apache_beam/io/gcp/tests/bigquery_matcher.py
+    # @retry.with_exponential_backoff(
+    #       num_retries=MAX_RETRIES,
+    #       retry_filter=retry_on_http_timeout_and_value_error)
+    #   def run_query(self):
+    #     """Run Bigquery query with retry if got error http response"""
+    #     _LOGGER.info('Attempting to perform query %s to BQ', self.query)
+    #     # Create client here since it throws an exception if pickled.
+    #     bigquery_client = bigquery.Client(self.project)
+    #     query_job = bigquery_client.query(self.query)
+    #     rows = query_job.result(timeout=60)
+    #     return [row.values() for row in rows]
+
     def validate_query(self, templated_query):
+        """Check if query passed as parameter is valid. If the query contains any Jinja templated params they will
+        be converted to the associated param value if one exists.
+
+        Parameters:
+        templated_query (str): SQL query to be validated
+        """
         try:
             formatted_query = self.render_templated_query(templated_query)
             querv_is_valid, message = self.dry_run_query(formatted_query)
@@ -122,16 +150,17 @@ class BigQueryValidator(object):
             return False
 
     def validate_query_from_file(self, file_path):
+        """Same as validate_query() but reads query from a file rather than accepting it as a param
+
+        Parameters:
+        file_path (str): Path to the sql file on the file system
+        """
         try:
-            # todo check if file exists
+            # todo check if file ends with .sql
             if os.path.isfile(file_path):
                 f = open(file_path, "r")
                 templated_query = f.read()
-                formatted_query = self.render_templated_query(templated_query)
-
-                querv_is_valid, message = self.dry_run_query(formatted_query)
-                logging.info(f'Query is {"valid" if querv_is_valid else "invalid"}. {message}')
-                return querv_is_valid, message
+                return self.validate_query(templated_query)
             else:
                 raise ValueError(f'Error: File does not exist: {file_path}')
         except Exception as e:
@@ -139,9 +168,16 @@ class BigQueryValidator(object):
             return False
 
     def auto_validate_query_from_file(self, file_path):
+        """Continuously monitor a sql file and automatically validate the sql on every saved change to the file.
+        Any Jinja templated params will be automatically parsed on update.
+
+        Parameters:
+        file_path (str): Path to the sql file on the file system
+       """
         try:
             _cached_stamp = 0
             while True:
+                # TODO monitor query validator config for changes too
                 stamp = os.stat(file_path).st_mtime
                 if stamp != _cached_stamp:
                     print(f'Loading...{RESET_SEQ}', end='                                                          \r')
@@ -154,6 +190,8 @@ class BigQueryValidator(object):
                     logging.info(f'Query is {"valid" if querv_is_valid else "invalid"}')
 
                     if querv_is_valid:
+                        # Extra white space here is quick workaround to remove all text from last message
+                        # when the previous message length exceeds the new message length
                         print_success(f'Valid query. {message}{RESET_SEQ}',
                                       end='                                                                         \r')
                     else:
