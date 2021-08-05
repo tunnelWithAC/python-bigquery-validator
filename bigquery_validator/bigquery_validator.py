@@ -46,8 +46,9 @@ class BigQueryValidator(object):
         params = {**params, **global_config_params}
 
         # load params from local config
-        local_config_params = load_config_from_file('./bq_validator_config.json')
-        params = { **params, **local_config_params}
+        local_config_path = os.path.join(os.getcwd(), 'bq_validator_config.json')
+        local_config_params = load_config_from_file(local_config_path)
+        params = {**params, **local_config_params}
         return params
 
     def render_templated_query(self, templated_query):
