@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import logging
+import os
 
 GREEN = '\033[92m'
 RED = '\x1b[31;21m'
@@ -42,6 +44,19 @@ def get_default_params():
         'tomorrow_ds': datetime_to_ds(today)
     }
 
+
+def read_sql_file(file_path):
+    try:
+        # todo check if file ends with .sql
+        if os.path.isfile(file_path):
+            f = open(file_path, "r")
+            templated_query = f.read()
+            return templated_query
+        else:
+            raise ValueError(f'Error: File does not exist: {file_path}')
+    except Exception as e:
+        logging.error(e)
+        return False
 
 # @retry.with_exponential_backoff(
 #       num_retries=MAX_RETRIES,
