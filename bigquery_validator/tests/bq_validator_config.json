@@ -1,3 +1,4 @@
 {
-    "environment": "test"
+    "environment": "test",
+    "project": "bigquery-public-data"
 }

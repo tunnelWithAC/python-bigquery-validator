@@ -1,2 +1,2 @@
-SELECT count(*)
-FROM `bigquery-public-data.samples.github_timeline`
+select count(*)
+from `{{ params.project }}.samples.github_timeline`
