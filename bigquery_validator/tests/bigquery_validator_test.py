@@ -38,4 +38,10 @@ class BigqueryValidatorTest(unittest.TestCase):
         test_param = self.bigquery_validator.params.get('environment')
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
 
-    # Test expected query size
+    def test_message_returns_correct_expected_processing_size(self):
+        # TODO add more tests for different query sizes and use tables I own
+        expected_message = "This query will process 395.51 MB."
+        query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
+                "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
+        _, message = self.bigquery_validator.validate_query(query)
+        self.assertEquals(message, expected_message, 'assert_message_returns_correct_expected_processing_size')
