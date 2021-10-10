@@ -49,7 +49,7 @@ python -m bigquery_validator validate_query 'select true'
 ```
 
 ```python
-python -m bigquery_validator validate_query_from_file './valid_query.sql'
+python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
 ```
 
 ### Build Instructions
@@ -58,6 +58,8 @@ Build steps
 python3 -m pip install --upgrade build
 python3 -m build
 ```
+
+
 
 Upload
 ```python

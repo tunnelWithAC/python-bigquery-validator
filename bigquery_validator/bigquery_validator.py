@@ -7,7 +7,7 @@ import warnings
 from google.cloud import bigquery
 from jinja2 import Template
 
-from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, RESET_SEQ
+from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, read_sql_file, RESET_SEQ
 
 warnings.filterwarnings("ignore", "Your application has authenticated using end user credentials")
 
@@ -158,8 +158,7 @@ class BigQueryValidator(object):
         try:
             # todo check if file ends with .sql
             if os.path.isfile(file_path):
-                f = open(file_path, "r")
-                templated_query = f.read()
+                templated_query = read_sql_file(file_path)
                 return self.validate_query(templated_query)
             else:
                 raise ValueError(f'Error: File does not exist: {file_path}')
@@ -182,8 +181,7 @@ class BigQueryValidator(object):
                 if stamp != _cached_stamp:
                     print(f'Loading...{RESET_SEQ}', end='                                                          \r')
                     _cached_stamp = stamp
-                    f = open(file_path, "r")
-                    templated_query = f.read()
+                    templated_query = read_sql_file(file_path)
                     formatted_query = self.render_templated_query(templated_query)
                     querv_is_valid, message = self.dry_run_query(formatted_query)
 

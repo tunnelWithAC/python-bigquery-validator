@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+import logging
+import os
 
 GREEN = '\033[92m'
 RED = '\x1b[31;21m'
@@ -43,6 +45,27 @@ def get_default_params():
     }
 
 
+def read_sql_file(file_path):
+    try:
+        # todo check if file ends with .sql
+        if os.path.isfile(file_path):
+            f = open(file_path, "r")
+            config_file_content = f.readlines()
+
+            no_comment_sql = ''
+            for line in config_file_content:
+                comment_index = line.find('--')
+                if comment_index != -1:
+                    no_comment_sql += line[:comment_index]
+                else:
+                    no_comment_sql += line
+
+            return no_comment_sql
+        else:
+            raise ValueError(f'Error: File does not exist: {file_path}')
+    except Exception as e:
+        logging.error(e)
+        return False
 # @retry.with_exponential_backoff(
 #       num_retries=MAX_RETRIES,
 #       retry_filter=retry_on_http_timeout_and_value_error)
