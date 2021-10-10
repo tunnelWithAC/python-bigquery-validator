@@ -59,13 +59,14 @@ def read_sql_file(file_path):
                     no_comment_sql += line[:comment_index]
                 else:
                     no_comment_sql += line
-
             return no_comment_sql
         else:
             raise ValueError(f'Error: File does not exist: {file_path}')
     except Exception as e:
         logging.error(e)
         return False
+
+
 # @retry.with_exponential_backoff(
 #       num_retries=MAX_RETRIES,
 #       retry_filter=retry_on_http_timeout_and_value_error)

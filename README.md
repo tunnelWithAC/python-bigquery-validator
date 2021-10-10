@@ -35,8 +35,8 @@ class BigqueryValidatorTest(unittest.TestCase):
 ```
 
 ### Run functions using the command line
-```python
-python -m bigquery_validator dry_run_query 'select true'
+```
+python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
 ```
 
 ```python
@@ -50,19 +50,4 @@ python -m bigquery_validator validate_query 'select true'
 
 ```python
 python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
-```
-
-### Build Instructions
-Build steps
-```python
-python3 -m pip install --upgrade build
-python3 -m build
-```
-
-
-
-Upload
-```python
-python3 -m pip install --upgrade twine
-python3 -m twine upload --repository pypi dist/*
 ```

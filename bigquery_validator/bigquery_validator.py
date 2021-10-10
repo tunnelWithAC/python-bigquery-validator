@@ -7,7 +7,8 @@ import warnings
 from google.cloud import bigquery
 from jinja2 import Template
 
-from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, read_sql_file, RESET_SEQ
+from bigquery_validator.bigquery_validator_util import get_default_params, print_success, print_failure, \
+    read_sql_file, RESET_SEQ
 
 warnings.filterwarnings("ignore", "Your application has authenticated using end user credentials")
 
@@ -55,7 +56,14 @@ class BigQueryValidator(object):
         # Convert the Jinja templated SQL to a valid query
         templated_query = templated_query.replace('params.', '')  # need this to get formatting correct
         t = Template(templated_query)
-        return t.render(self.params)
+        rendered_query = t.render(self.params)
+        rendered_query = rendered_query.replace('\n', ' ')
+        return rendered_query
+
+    def render_templated_query_from_file(self, file_path):
+        # Convert the Jinja templated SQL to a valid query
+        templated_query = read_sql_file(file_path)
+        return self.render_templated_query(templated_query)
 
     # # todo finish
     # def parameterize_sql(self, query):
@@ -90,23 +98,23 @@ class BigQueryValidator(object):
             kilobyte = 1024
             megabyte = 1024 * 1024
             gigabyte = 1024 * 1024 * 1024
-            terabyte = 1024 * 1024 * 1024
+            terabyte = 1024 * 1024 * 1024 * 1024
 
             if total_bytes > terabyte:
                 rounded_total = round(total_bytes / terabyte, 2)
-                byte_type = 'terabytes'
+                byte_type = 'TB'
             elif total_bytes > gigabyte:
                 rounded_total = round(total_bytes / gigabyte, 2)
-                byte_type = 'gigabytes'
+                byte_type = 'GB'
             elif total_bytes > megabyte:
                 rounded_total = round(total_bytes / megabyte, 2)
-                byte_type = 'megabytes'
+                byte_type = 'MB'
             elif total_bytes > kilobyte:
                 rounded_total = round(total_bytes / kilobyte, 2)
-                byte_type = 'kilobytes'
+                byte_type = 'KB'
             else:
                 rounded_total = round(total_bytes / byte, 2)
-                byte_type = 'bytes'
+                byte_type = 'B'
 
             message = f'This query will process {rounded_total} {byte_type}.'
             return True, message
@@ -165,6 +173,7 @@ class BigQueryValidator(object):
         except Exception as e:
             logging.error(e)
             return False
+
 
     def auto_validate_query_from_file(self, file_path):
         """Continuously monitor a sql file and automatically validate the sql on every saved change to the file.
