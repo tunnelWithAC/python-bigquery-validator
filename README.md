@@ -49,5 +49,5 @@ python -m bigquery_validator validate_query 'select true'
 ```
 
 ```python
-python -m bigquery_validator validate_query_from_file './valid_query.sql'
+python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
 ```
