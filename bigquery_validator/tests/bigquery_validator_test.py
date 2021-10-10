@@ -31,7 +31,7 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertEquals(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
 
     def test_parameterised_query_from_file_is_formatted_correctly(self):
-        rendered_query = self.bigquery_validator.render_templated_query_from_file("./valid_query.sql")
+        rendered_query = self.bigquery_validator.render_templated_query_from_file("./test_param_query.sql")
         self.assertEquals(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
 
     def test_extra_params_are_loaded_from_file(self):
