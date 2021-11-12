@@ -36,6 +36,16 @@ class BigQueryResult:
         return pd.DataFrame(self.result)
 
     def metadata(self):
+        """
+        Result: python list of rows
+        dataframe(): result as a dataframe
+        metadata(): data for each column including
+        - unique values
+        - null values count
+        - has null values
+        - has non null values
+        - count each value
+        """
         df = self.dataframe()
 
         metadata = {
@@ -58,13 +68,3 @@ class BigQueryResult:
             metadata['value_counts'][column] = value_counts
         return metadata
 
-    """
-    Result: python list of rows
-    dataframe(): result as a dataframe
-    metadata(): data for each column including
-    - unique values
-    - null values count
-    - has null values
-    - has non null values
-    - count each value
-    """

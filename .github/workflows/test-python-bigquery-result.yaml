@@ -1,4 +1,4 @@
-name: run-unit-tests
+name: run-bigquery-result-unit-tests
 on:
   push
 jobs:
@@ -24,4 +24,4 @@ jobs:
     - name: Run unit tests
       run: |
         cd bigquery_validator/tests
-        pytest bigquery_validator_test.py
+        pytest bigquery_result_test.py
