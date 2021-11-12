@@ -7,12 +7,24 @@ from bigquery_validator import BigQueryValidator
 class BigQueryResult:
 
     def __init__(self,
-                 query,
+                 query=None,
+                 file_path=None,
                  auto_execute=True,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.bigquery_validator = BigQueryValidator()
-        self.query = self.bigquery_validator.render_templated_query(query)
+
+        if file_path is not None and query is not None:
+            raise ValueError(
+                'Both a query and path to a .sql file were specified.'
+                ' Please specify only one of these.')
+        elif file_path is None and query is None:
+            raise ValueError('A query or path to a .sql file must be specified')
+        elif query is not None:
+            self.query = self.bigquery_validator.render_templated_query(query)
+        else:
+            self.query = self.bigquery_validator.render_templated_query_from_file(file_path)
+
         self.auto_execute = auto_execute
         self.result = []
         self.use_query_cache = use_query_cache

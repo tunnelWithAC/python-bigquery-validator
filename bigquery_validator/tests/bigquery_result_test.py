@@ -28,7 +28,15 @@ class BigqueryResultTest(unittest.TestCase):
         self.assertIsNotNone(result_metadata)
         self.assertEquals(unique_rows, total_rows)
 
-    def test_correct_number_of_unique_values_is_returned(self):
+    def test_query_from_file_metadata_is_not_none(self):
+        bqr = BigQueryResult(file_path='./sql/bigquery_result_metadata.sql')
+        result_metadata = bqr.metadata()
+        unique_rows = len(result_metadata['unique_values']['nrows'])
+        total_rows = result_metadata['nrows']
+        self.assertIsNotNone(result_metadata)
+        self.assertEquals(unique_rows, total_rows)
+
+    def test_query_returns_correct_number_of_unique_values(self):
         query = '''
         SELECT distinct(repository_url)
         FROM `bigquery-public-data.samples.github_timeline`
@@ -36,6 +44,12 @@ class BigqueryResultTest(unittest.TestCase):
         '''
 
         bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        unique_rows = len(result_metadata['unique_values']['repository_url'])
+        self.assertEquals(unique_rows, 5)
+
+    def test_query_from_file_returns_correct_number_of_unique_values(self):
+        bqr = BigQueryResult(file_path='./sql/bigquery_result_test.sql')
         result_metadata = bqr.metadata()
         unique_rows = len(result_metadata['unique_values']['repository_url'])
         self.assertEquals(unique_rows, 5)
