@@ -166,8 +166,17 @@ class BigQueryValidator:
         Parameters:
         file_path (str): Path to the sql file on the file system
         """
-        templated_query = read_sql_file(file_path)
-        return self.validate_query(templated_query)
+        try:
+            # todo check if file ends with .sql
+            if os.path.isfile(file_path):
+                templated_query = read_sql_file(file_path)
+                return self.validate_query(templated_query)
+            else:
+                raise ValueError(f'Error: File does not exist: {file_path}')
+        except Exception as e:
+            logging.error(e)
+            return False
+
 
     def auto_validate_query_from_file(self, file_path):
         """Continuously monitor a sql file and automatically validate the sql on every saved change to the file.
@@ -184,8 +193,7 @@ class BigQueryValidator:
                 if stamp != _cached_stamp:
                     print(f'Loading...{RESET_SEQ}', end='                                                          \r')
                     _cached_stamp = stamp
-                    f = open(file_path, "r")
-                    templated_query = f.read()
+                    templated_query = read_sql_file(file_path)
                     formatted_query = self.render_templated_query(templated_query)
                     querv_is_valid, message = self.dry_run_query(formatted_query)
 
