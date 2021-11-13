@@ -36,20 +36,52 @@ class BigqueryResultTest(unittest.TestCase):
         self.assertIsNotNone(result_metadata)
         self.assertEquals(unique_rows, total_rows)
 
-    def test_query_returns_correct_number_of_unique_values(self):
+
+    def test_query_metadata_returns_correct_unique_values(self):
         query = '''
-        SELECT distinct(repository_url)
-        FROM `bigquery-public-data.samples.github_timeline`
-        LIMIT 5
+        select 'andrew' as name, 21 as age
+        union all
+        select 'james' as name, 20 as age
         '''
 
         bqr = BigQueryResult(query)
         result_metadata = bqr.metadata()
-        unique_rows = len(result_metadata['unique_values']['repository_url'])
-        self.assertEquals(unique_rows, 5)
+        unique_names = result_metadata['unique_values']['name']
+        self.assertEquals(unique_names, ['andrew', 'james'])
 
-    def test_query_from_file_returns_correct_number_of_unique_values(self):
+    def test_query_from_file_metadata_returns_correct_unique_values(self):
         bqr = BigQueryResult(file_path='./sql/bigquery_result_test.sql')
         result_metadata = bqr.metadata()
-        unique_rows = len(result_metadata['unique_values']['repository_url'])
-        self.assertEquals(unique_rows, 5)
+        unique_names = result_metadata['unique_values']['name']
+        self.assertEquals(unique_names, ['john', 'peter', 'andrew', 'james'])
+
+    def test_query_metadata_returns_correct_null_values(self):
+        query = '''
+        select 'andrew' as name, null as age
+        union all
+        select null as name, null as age
+        '''
+
+        bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        null_names = result_metadata['null_values']['name']
+        self.assertEquals(null_names, 1)
+
+        null_age = result_metadata['null_values']['age']
+        self.assertEquals(null_age, 2)
+
+    def test_query_metadata_returns_correct_value_counts(self):
+        query = '''
+        select 'andrew' as name, 20 as age
+        union all
+        select 'john' as name, 20 as age
+        '''
+
+        bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        value_counts = result_metadata['value_counts']
+        name_value_counts = value_counts['name']
+        self.assertEquals(name_value_counts, {'john': 1, 'andrew': 1})
+
+        age_value_counts = value_counts['age']
+        self.assertEquals(age_value_counts, {20: 2})

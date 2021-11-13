@@ -40,6 +40,7 @@ class BigQueryResult:
         try:
             job_config = bigquery.QueryJobConfig(use_query_cache=self.use_query_cache)
             query_result = self.bq_client.query(self.query, job_config=job_config)
+            # todo store query cost
             self.result = [dict(r) for r in query_result]
             return self.result
         except Exception as e:
@@ -72,10 +73,10 @@ class BigQueryResult:
         }
 
         for column in df.columns:
-            unique_values = df[column].unique()
+            unique_values = list(df[column].unique())
             metadata['unique_values'][column] = unique_values
 
-            null_value_counts = df[column].isnull()  # isna().sum()
+            null_value_counts = df[column].isna().sum()
             metadata['null_values'][column] = null_value_counts
 
             value_counts_df = df[column].value_counts()
