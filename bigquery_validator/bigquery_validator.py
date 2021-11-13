@@ -13,7 +13,10 @@ from bigquery_validator.bigquery_validator_util import get_default_params, print
 warnings.filterwarnings("ignore", "Your application has authenticated using end user credentials")
 
 
-class BigQueryValidator(object):
+class BigQueryValidator:
+    """Convert Jinja templated sql query to a regularly formatted query and validate it using BigQuery dry run.
+    Queries can be inputted as a string or by passing the file path to a sql file.
+    """
 
     def __init__(self,
                  use_query_cache=False):
@@ -23,7 +26,7 @@ class BigQueryValidator(object):
 
 
     def load_params(self):
-        # load default params
+        """Load default params"""
         params = get_default_params()
 
         # load params from global config
@@ -53,7 +56,7 @@ class BigQueryValidator(object):
         return params
 
     def render_templated_query(self, templated_query):
-        # Convert the Jinja templated SQL to a valid query
+        """Convert the Jinja templated SQL to a valid query"""
         templated_query = templated_query.replace('params.', '')  # need this to get formatting correct
         t = Template(templated_query)
         rendered_query = t.render(self.params)
@@ -61,7 +64,7 @@ class BigQueryValidator(object):
         return rendered_query
 
     def render_templated_query_from_file(self, file_path):
-        # Convert the Jinja templated SQL to a valid query
+        """Convert the Jinja templated SQL to a valid query"""
         templated_query = read_sql_file(file_path)
         return self.render_templated_query(templated_query)
 
