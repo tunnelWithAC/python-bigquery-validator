@@ -124,7 +124,8 @@ class BigqueryResultTest(unittest.TestCase):
 ### Run functions using the command line
 Taken from `bigquery_validator/tests/bigquery_result_test.py`
 ```python
-# Continuously monitor a sql file and automatically validate the sql on every saved change to the file
+# Continuously monitor a sql file and automatically validate the sql on every
+# saved change to the file
 python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
 
 # Convert the Jinja templated SQL to a valid query
@@ -132,4 +133,7 @@ python -m bigquery_validator render_templated_query 'select date("{{ params.date
 
 # Check if query is valid
 python -m bigquery_validator validate_query 'select true'
+
+# Check if sql file contains valid query
+python -m bigquery_validator validate_query_from_file './valid_query.sql'
 ```
