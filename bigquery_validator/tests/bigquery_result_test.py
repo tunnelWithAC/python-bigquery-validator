@@ -1,42 +1,8 @@
-### Python BigQuery Validator
-Python module for validating BigQuery sql queries with support for Jinja templated variables
+import unittest
 
-This package was built with the goal of automating testing of sql for [Apache Airflow](https://github.com/apache/airflow) dags.
+from bigquery_validator.bigquery_result import BigQueryResult
 
-### Installation Instructions
-```python
-pip install python-bigquery-validator
-```
 
-### Validate sql using unit tests
-
-```python
-class BigqueryValidatorTest(unittest.TestCase):
-
-    bigquery_validator = BigQueryValidator()
-
-    def test_valid_query_returns_true(self):
-        query = "SELECT count(*) FROM `bigquery-public-data.samples.github_timeline`"
-        valid_sql = self.bigquery_validator.validate_query(query)
-        self.assertTrue(valid_sql)
-
-    def test_bad_query_returns_false(self):
-        query = "SELECT count(*) ROM `bigquery-public-data.samples.github_timeline`"
-        bad_sql = self.bigquery_validator.validate_query(query)
-        self.assertFalse(bad_sql)
-
-    def test_valid_query_from_file_returns_true(self):
-        valid_sql = self.bigquery_validator.validate_query_from_file("./valid_query.sql")
-        self.assertTrue(valid_sql)
-
-    def test_bad_query_from_file_returns_false(self):
-        bad_sql = self.bigquery_validator.validate_query_from_file("./bad_query.sql")
-        self.assertFalse(bad_sql, 'assert_bad_sql_from_file_fails_validation')
-```
-
-### Validate the output of query results using unit tests
-Taken from `bigquery_validator/tests/bigquery_validator_test.py`
-```python
 class BigqueryResultTest(unittest.TestCase):
 
     def test_query_executes_by_default(self):
@@ -118,22 +84,3 @@ class BigqueryResultTest(unittest.TestCase):
 
         age_value_counts = value_counts['age']
         self.assertEquals(age_value_counts, {20: 2})
-```
-
-
-### Run functions using the command line
-Taken from `bigquery_validator/tests/bigquery_result_test.py`
-```python
-# Continuously monitor a sql file and automatically validate the sql on every
-# saved change to the file
-python -m bigquery_validator auto_validate_query_from_file './valid_query.sql'
-
-# Convert the Jinja templated SQL to a valid query
-python -m bigquery_validator render_templated_query 'select date("{{ params.date }}") as date'
-
-# Check if query is valid
-python -m bigquery_validator validate_query 'select true'
-
-# Check if sql file contains valid query
-python -m bigquery_validator validate_query_from_file './valid_query.sql'
-```
