@@ -106,11 +106,11 @@ class BigQueryValidator:
             terabyte = 1024 * 1024 * 1024 * 1024
 
             query_cost = {
-                'bytes': round(total_bytes / byte, 2),
-                'kilobytes': round(total_bytes / kilobyte, 2),
-                'megabytes': round(total_bytes / megabyte, 2),
-                'gigabytes': round(total_bytes / gigabyte, 2),
-                'terabytes': round(total_bytes / terabyte, 2)
+                'b': round(total_bytes / byte, 2),
+                'kb': round(total_bytes / kilobyte, 2),
+                'mb': round(total_bytes / megabyte, 2),
+                'gb': round(total_bytes / gigabyte, 2),
+                'tb': round(total_bytes / terabyte, 2)
             }
 
             if total_bytes > terabyte:
