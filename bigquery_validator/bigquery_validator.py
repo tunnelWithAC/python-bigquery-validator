@@ -19,10 +19,12 @@ class BigQueryValidator:
     """
 
     def __init__(self,
+                 return_query_cost_as_dict=False,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.params = self.load_params()
         self.use_query_cache = use_query_cache
+        self.return_query_cost_as_dict = return_query_cost_as_dict
 
 
     def load_params(self):
@@ -103,24 +105,36 @@ class BigQueryValidator:
             gigabyte = 1024 * 1024 * 1024
             terabyte = 1024 * 1024 * 1024 * 1024
 
+            query_cost = {
+                'bytes': round(total_bytes / byte, 2),
+                'kilobytes': round(total_bytes / kilobyte, 2),
+                'megabytes': round(total_bytes / megabyte, 2),
+                'gigabytes': round(total_bytes / gigabyte, 2),
+                'terabytes': round(total_bytes / terabyte, 2)
+            }
+
             if total_bytes > terabyte:
-                rounded_total = round(total_bytes / terabyte, 2)
+                rounded_total = query_cost['terabytes']
                 byte_type = 'TB'
             elif total_bytes > gigabyte:
-                rounded_total = round(total_bytes / gigabyte, 2)
+                rounded_total = query_cost['gigabytes']
                 byte_type = 'GB'
             elif total_bytes > megabyte:
-                rounded_total = round(total_bytes / megabyte, 2)
+                rounded_total = query_cost['megabytes']
                 byte_type = 'MB'
             elif total_bytes > kilobyte:
-                rounded_total = round(total_bytes / kilobyte, 2)
+                rounded_total = query_cost['kilobytes']
                 byte_type = 'KB'
             else:
-                rounded_total = round(total_bytes / byte, 2)
+                rounded_total = query_cost['bytes']
                 byte_type = 'B'
 
-            message = f'This query will process {rounded_total} {byte_type}.'
-            return True, message
+            if self.return_query_cost_as_dict:
+                return True, query_cost
+            else:
+                message = f'This query will process {rounded_total} {byte_type}.'
+                return True, message
+
         except Exception as e:
             error_string = str(e)
             error_minus_job_url = error_string.split('jobs?prettyPrint=false:')

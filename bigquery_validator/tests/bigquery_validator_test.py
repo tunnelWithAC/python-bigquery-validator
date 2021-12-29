@@ -39,9 +39,18 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
 
     def test_message_returns_correct_expected_processing_size(self):
-        # TODO add more tests for different query sizes and use tables I own
         expected_message = "This query will process 395.51 MB."
         query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
                 "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
         _, message = self.bigquery_validator.validate_query(query)
         self.assertEquals(message, expected_message, 'assert_message_returns_correct_expected_processing_size')
+
+    def test_query_costs_less_than_1_gb(self):
+        bigquery_validator = BigQueryValidator(return_query_cost_as_dict=True)
+        query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
+                "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
+        _, query_cost = bigquery_validator.validate_query(query)
+        query_cost_gb = query_cost['gb']
+        query_cost_mb = query_cost['mb']
+        self.assertLess(query_cost_gb, 1, 'assert_query_costs_less_than_1_gigabyte')
+        self.assertGreater(query_cost_mb, 100, 'assert_query_costs_greater_than_100_megabyte')
