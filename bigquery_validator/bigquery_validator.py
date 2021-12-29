@@ -114,19 +114,19 @@ class BigQueryValidator:
             }
 
             if total_bytes > terabyte:
-                rounded_total = query_cost['terabytes']
+                rounded_total = query_cost['b']
                 byte_type = 'TB'
             elif total_bytes > gigabyte:
-                rounded_total = query_cost['gigabytes']
+                rounded_total = query_cost['gb']
                 byte_type = 'GB'
             elif total_bytes > megabyte:
-                rounded_total = query_cost['megabytes']
+                rounded_total = query_cost['mb']
                 byte_type = 'MB'
             elif total_bytes > kilobyte:
-                rounded_total = query_cost['kilobytes']
+                rounded_total = query_cost['kb']
                 byte_type = 'KB'
             else:
-                rounded_total = query_cost['bytes']
+                rounded_total = query_cost['b']
                 byte_type = 'B'
 
             if self.return_query_cost_as_dict:
@@ -172,7 +172,7 @@ class BigQueryValidator:
             return querv_is_valid, message
         except Exception as e:
             logging.error(e)
-            return False
+            return False, f"An error occurred while validating query - {templated_query}"
 
     def validate_query_from_file(self, file_path):
         """Same as validate_query() but reads query from a file rather than accepting it as a param
