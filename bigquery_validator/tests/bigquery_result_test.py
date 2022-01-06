@@ -36,6 +36,19 @@ class BigqueryResultTest(unittest.TestCase):
         self.assertIsNotNone(result_metadata)
         self.assertEquals(unique_rows, total_rows)
 
+    def test_query_metadata_returns_correct_columns(self):
+        query = '''
+        select 'andrew' as name, 21 as age
+        union all
+        select 'james' as name, 20 as age
+        '''
+
+        bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        columns = result_metadata['columns']
+        print(columns)
+        self.assertEquals(columns, ['name', 'age'])
+
     def test_query_metadata_returns_correct_unique_values(self):
         query = '''
         select 'andrew' as name, 21 as age

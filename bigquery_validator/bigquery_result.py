@@ -65,6 +65,7 @@ class BigQueryResult:
         df = self.dataframe()
 
         metadata = {
+            'columns': list(df.columns.values),
             'nrows': df.shape[0],
             'ncols': df.shape[1],
             'null_values': {},
