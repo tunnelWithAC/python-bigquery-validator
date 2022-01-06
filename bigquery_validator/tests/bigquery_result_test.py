@@ -12,7 +12,7 @@ class BigqueryResultTest(unittest.TestCase):
         print(bqr.result)
         self.assertIsNotNone(bqr.result)
 
-    def test_query_auto_executes_set_to_false_returns_empty_arrya(self):
+    def test_query_auto_executes_set_to_false_returns_empty_array(self):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query, auto_execute=False)
