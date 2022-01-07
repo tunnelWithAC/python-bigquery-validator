@@ -26,11 +26,11 @@ jobs:
           --wheel
           --outdir dist/
           .
-#      - name: Publish distribution package to Test PyPI
-#        uses: pypa/gh-action-pypi-publish@master
-#        with:
-#          password: ${{ secrets.PYPI_TEST_API_KEY }}
-#          repository_url: https://test.pypi.org/legacy/
+      - name: Publish distribution package to Test PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_TEST_API_KEY }}
+          repository_url: https://test.pypi.org/legacy/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
