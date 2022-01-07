@@ -19,10 +19,12 @@ class BigQueryValidator:
     """
 
     def __init__(self,
+                 return_query_cost_as_dict=False,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.params = self.load_params()
         self.use_query_cache = use_query_cache
+        self.return_query_cost_as_dict = return_query_cost_as_dict
 
 
     def load_params(self):
@@ -103,24 +105,36 @@ class BigQueryValidator:
             gigabyte = 1024 * 1024 * 1024
             terabyte = 1024 * 1024 * 1024 * 1024
 
+            query_cost = {
+                'b': round(total_bytes / byte, 2),
+                'kb': round(total_bytes / kilobyte, 2),
+                'mb': round(total_bytes / megabyte, 2),
+                'gb': round(total_bytes / gigabyte, 2),
+                'tb': round(total_bytes / terabyte, 2)
+            }
+
             if total_bytes > terabyte:
-                rounded_total = round(total_bytes / terabyte, 2)
+                rounded_total = query_cost['b']
                 byte_type = 'TB'
             elif total_bytes > gigabyte:
-                rounded_total = round(total_bytes / gigabyte, 2)
+                rounded_total = query_cost['gb']
                 byte_type = 'GB'
             elif total_bytes > megabyte:
-                rounded_total = round(total_bytes / megabyte, 2)
+                rounded_total = query_cost['mb']
                 byte_type = 'MB'
             elif total_bytes > kilobyte:
-                rounded_total = round(total_bytes / kilobyte, 2)
+                rounded_total = query_cost['kb']
                 byte_type = 'KB'
             else:
-                rounded_total = round(total_bytes / byte, 2)
+                rounded_total = query_cost['b']
                 byte_type = 'B'
 
-            message = f'This query will process {rounded_total} {byte_type}.'
-            return True, message
+            if self.return_query_cost_as_dict:
+                return True, query_cost
+            else:
+                message = f'This query will process {rounded_total} {byte_type}.'
+                return True, message
+
         except Exception as e:
             error_string = str(e)
             error_minus_job_url = error_string.split('jobs?prettyPrint=false:')
@@ -158,7 +172,7 @@ class BigQueryValidator:
             return querv_is_valid, message
         except Exception as e:
             logging.error(e)
-            return False
+            return False, f"An error occurred while validating query - {templated_query}"
 
     def validate_query_from_file(self, file_path):
         """Same as validate_query() but reads query from a file rather than accepting it as a param

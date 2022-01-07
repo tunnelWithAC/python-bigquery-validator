@@ -13,25 +13,34 @@ pip install python-bigquery-validator
 ```python
 class BigqueryValidatorTest(unittest.TestCase):
 
-    bigquery_validator = BigQueryValidator()
+    bigquery_validator = BigQueryValidator(return_query_cost_as_dict=True)
 
     def test_valid_query_returns_true(self):
         query = "SELECT count(*) FROM `bigquery-public-data.samples.github_timeline`"
-        valid_sql = self.bigquery_validator.validate_query(query)
+        valid_sql, _ = self.bigquery_validator.validate_query(query)
         self.assertTrue(valid_sql)
 
     def test_bad_query_returns_false(self):
         query = "SELECT count(*) ROM `bigquery-public-data.samples.github_timeline`"
-        bad_sql = self.bigquery_validator.validate_query(query)
+        bad_sql, _ = self.bigquery_validator.validate_query(query)
         self.assertFalse(bad_sql)
 
     def test_valid_query_from_file_returns_true(self):
-        valid_sql = self.bigquery_validator.validate_query_from_file("./valid_query.sql")
+        valid_sql, _ = self.bigquery_validator.validate_query_from_file("./valid_query.sql")
         self.assertTrue(valid_sql)
 
     def test_bad_query_from_file_returns_false(self):
-        bad_sql = self.bigquery_validator.validate_query_from_file("./bad_query.sql")
+        bad_sql, _ = self.bigquery_validator.validate_query_from_file("./bad_query.sql")
         self.assertFalse(bad_sql, 'assert_bad_sql_from_file_fails_validation')
+
+    def test_query_costs_less_than_1_gb(self):
+        query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
+                "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
+        _, query_cost = self.bigquery_validator.validate_query(query)
+        query_cost_gb = query_cost['gb']
+        query_cost_mb = query_cost['mb']
+        self.assertLess(query_cost_gb, 1, 'assert_query_costs_less_than_1_gigabyte')
+        self.assertGreater(query_cost_mb, 100, 'assert_query_costs_greater_than_100_megabyte')
 ```
 
 ### Validate the output of query results using unit tests
@@ -43,7 +52,6 @@ class BigqueryResultTest(unittest.TestCase):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query)
-        print(bqr.result)
         self.assertIsNotNone(bqr.result)
 
     def test_query_auto_executes_set_to_false_returns_empty_arrya(self):
@@ -70,6 +78,18 @@ class BigqueryResultTest(unittest.TestCase):
         self.assertIsNotNone(result_metadata)
         self.assertEquals(unique_rows, total_rows)
 
+    def test_query_metadata_returns_correct_columns(self):
+        query = '''
+        select 'andrew' as name, 21 as age
+        union all
+        select 'james' as name, 20 as age
+        '''
+
+        bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        columns = result_metadata['columns']
+        self.assertEquals(columns, ['name', 'age'])
+        
     def test_query_metadata_returns_correct_unique_values(self):
         query = '''
         select 'andrew' as name, 21 as age

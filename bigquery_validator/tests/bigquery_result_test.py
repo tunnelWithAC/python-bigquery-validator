@@ -9,10 +9,9 @@ class BigqueryResultTest(unittest.TestCase):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query)
-        print(bqr.result)
         self.assertIsNotNone(bqr.result)
 
-    def test_query_auto_executes_set_to_false_returns_empty_arrya(self):
+    def test_query_auto_executes_set_to_false_returns_empty_array(self):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query, auto_execute=False)
@@ -35,6 +34,18 @@ class BigqueryResultTest(unittest.TestCase):
         total_rows = result_metadata['nrows']
         self.assertIsNotNone(result_metadata)
         self.assertEquals(unique_rows, total_rows)
+
+    def test_query_metadata_returns_correct_columns(self):
+        query = '''
+        select 'andrew' as name, 21 as age
+        union all
+        select 'james' as name, 20 as age
+        '''
+
+        bqr = BigQueryResult(query)
+        result_metadata = bqr.metadata()
+        columns = result_metadata['columns']
+        self.assertEquals(columns, ['name', 'age'])
 
     def test_query_metadata_returns_correct_unique_values(self):
         query = '''
