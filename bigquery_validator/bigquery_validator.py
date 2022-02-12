@@ -65,9 +65,9 @@ class BigQueryValidator:
         rendered_query = rendered_query.replace('\n', ' ')
         return rendered_query
 
-    def render_templated_query_from_file(self, file_path, ignore_leading_lines):
+    def render_templated_query_from_file(self, file_path):
         """Convert the Jinja templated SQL to a valid query"""
-        templated_query = read_sql_file(file_path, ignore_leading_lines)
+        templated_query = read_sql_file(file_path)
         return self.render_templated_query(templated_query)
 
     # # todo finish
