@@ -6,7 +6,7 @@ from bigquery_validator.bigquery_validator import BigQueryValidator
 class BigqueryValidatorTest(unittest.TestCase):
 
     bigquery_validator = BigQueryValidator({
-        'project': 'my-project'
+        'region': 'EU'
     })
 
     def test_valid_query_returns_true(self):
@@ -41,8 +41,8 @@ class BigqueryValidatorTest(unittest.TestCase):
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
 
     def test_extra_params_are_loaded_from_constructor(self):
-        test_param = self.bigquery_validator.params.get('project')
-        self.assertEqual(test_param, 'test', 'my-project')
+        region_param = self.bigquery_validator.params.get('region')
+        self.assertEqual(region_param, 'EU', 'assert_param_from_constructor_are_loaded_correctly')
 
     def test_message_returns_correct_expected_processing_size(self):
         expected_message = "This query will process 395.51 MB."
