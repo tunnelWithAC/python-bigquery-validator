@@ -21,6 +21,10 @@ class BigqueryValidatorTest(unittest.TestCase):
         valid_sql, _ = self.bigquery_validator.validate_query_from_file("./valid_query.sql")
         self.assertTrue(valid_sql)
 
+    def test_ignore_leading_line_from_valid_query_file_returns_true(self):
+        valid_sql, _ = self.bigquery_validator.validate_query_from_file("./valid_query.sql", ignore_leading_lines=1)
+        self.assertTrue(valid_sql)
+
     def test_bad_query_from_file_returns_false(self):
         bad_sql, _ = self.bigquery_validator.validate_query_from_file("./bad_query.sql")
         self.assertFalse(bad_sql, 'assert_bad_sql_from_file_fails_validation')

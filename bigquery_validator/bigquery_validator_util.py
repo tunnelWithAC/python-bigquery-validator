@@ -45,7 +45,8 @@ def get_default_params():
     }
 
 
-def read_sql_file(file_path):
+def read_sql_file(file_path,
+                  ignore_leading_lines:int=0):
     try:
         # todo check if file ends with .sql
         if os.path.isfile(file_path):
@@ -53,7 +54,7 @@ def read_sql_file(file_path):
             config_file_content = f.readlines()
 
             no_comment_sql = ''
-            for line in config_file_content:
+            for line in config_file_content[ignore_leading_lines:]:
                 comment_index = line.find('--')
                 if comment_index != -1:
                     no_comment_sql += line[:comment_index]
