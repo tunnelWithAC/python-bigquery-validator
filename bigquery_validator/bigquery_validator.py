@@ -175,16 +175,19 @@ class BigQueryValidator:
             logging.error(e)
             return False, f"An error occurred while validating query - {templated_query}"
 
-    def validate_query_from_file(self, file_path):
+    def validate_query_from_file(self,
+                                 file_path:str,
+                                 ignore_leading_lines:int=None):
         """Same as validate_query() but reads query from a file rather than accepting it as a param
 
         Parameters:
         file_path (str): Path to the sql file on the file system
+        ignore_leading_lines (int): Ignore leading n lines from query when validating query
         """
         try:
             # todo check if file ends with .sql
             if os.path.isfile(file_path):
-                templated_query = read_sql_file(file_path)
+                templated_query = read_sql_file(file_path, ignore_leading_lines)
                 return self.validate_query(templated_query)
             else:
                 raise ValueError(f'Error: File does not exist: {file_path}')
@@ -193,12 +196,15 @@ class BigQueryValidator:
             return False
 
 
-    def auto_validate_query_from_file(self, file_path):
+    def auto_validate_query_from_file(self,
+                                      file_path:str,
+                                      ignore_leading_lines:int=None):
         """Continuously monitor a sql file and automatically validate the sql on every saved change to the file.
         Any Jinja templated params will be automatically parsed on update.
 
         Parameters:
         file_path (str): Path to the sql file on the file system
+        ignore_leading_lines (int): Ignore leading n lines from query when validating query
        """
         try:
             _cached_stamp = 0
@@ -208,7 +214,7 @@ class BigQueryValidator:
                 if stamp != _cached_stamp:
                     print(f'Loading...{RESET_SEQ}', end='                                                          \r')
                     _cached_stamp = stamp
-                    templated_query = read_sql_file(file_path)
+                    templated_query = read_sql_file(file_path, ignore_leading_lines)
                     formatted_query = self.render_templated_query(templated_query)
                     querv_is_valid, message = self.dry_run_query(formatted_query)
 
