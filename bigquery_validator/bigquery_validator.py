@@ -176,7 +176,7 @@ class BigQueryValidator:
 
     def validate_query_from_file(self,
                                  file_path:str,
-                                 ignore_leading_lines:int):
+                                 ignore_leading_lines:int=None):
         """Same as validate_query() but reads query from a file rather than accepting it as a param
 
         Parameters:
@@ -197,7 +197,7 @@ class BigQueryValidator:
 
     def auto_validate_query_from_file(self,
                                       file_path:str,
-                                      ignore_leading_lines:int):
+                                      ignore_leading_lines:int=None):
         """Continuously monitor a sql file and automatically validate the sql on every saved change to the file.
         Any Jinja templated params will be automatically parsed on update.
 
