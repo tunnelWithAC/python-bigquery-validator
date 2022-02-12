@@ -19,10 +19,11 @@ class BigQueryValidator:
     """
 
     def __init__(self,
+                 params={},
                  return_query_cost_as_dict=False,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
-        self.params = self.load_params()
+        self.params = {**params, **self.load_params()}
         self.use_query_cache = use_query_cache
         self.return_query_cost_as_dict = return_query_cost_as_dict
 

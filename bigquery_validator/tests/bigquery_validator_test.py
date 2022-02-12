@@ -5,7 +5,9 @@ from bigquery_validator.bigquery_validator import BigQueryValidator
 
 class BigqueryValidatorTest(unittest.TestCase):
 
-    bigquery_validator = BigQueryValidator()
+    bigquery_validator = BigQueryValidator({
+        'project': 'my-project'
+    })
 
     def test_valid_query_returns_true(self):
         query = "SELECT count(*) FROM `{{ params.project }}.samples.github_timeline`"
@@ -37,6 +39,10 @@ class BigqueryValidatorTest(unittest.TestCase):
     def test_extra_params_are_loaded_from_file(self):
         test_param = self.bigquery_validator.params.get('environment')
         self.assertEqual(test_param, 'test', 'assert_extra_param_exists')
+
+    def test_extra_params_are_loaded_from_constructor(self):
+        test_param = self.bigquery_validator.params.get('project')
+        self.assertEqual(test_param, 'test', 'my-project')
 
     def test_message_returns_correct_expected_processing_size(self):
         expected_message = "This query will process 395.51 MB."
