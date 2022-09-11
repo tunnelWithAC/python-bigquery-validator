@@ -50,8 +50,8 @@ jobs:
     - name: Check test coverage
       run: |
         COV=$(coverage json --fail-under=80)
+        echo $COV
         if [[ "$COV" == *"fail"* ]]; then
-          echo $COV
           exit code 1;
         fi
     - name: Run unit tests
