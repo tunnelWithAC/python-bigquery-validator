@@ -49,6 +49,7 @@ jobs:
         pip install pytest coverage
     - name: Check test coverage
       run: |
+        cd bigquery_validator/tests
         coverage run -m pytest bigquery_validator_test.py
         coverage report -m
         COV=$(coverage json --fail-under=80)
