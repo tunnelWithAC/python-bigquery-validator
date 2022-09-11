@@ -49,7 +49,7 @@ jobs:
         pip install pytest coverage
     - name: Check test coverage
       run: |
-        COV=$(coverage json -m --fail-under=80)
+        COV=$(coverage json --fail-under=80)
         if [[ "$COV" == *"fail"* ]]; then
           echo $COV
           exit code 1;
