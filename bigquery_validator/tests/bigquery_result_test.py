@@ -6,7 +6,7 @@ from bigquery_validator.bigquery_result import BigQueryResult
 class BigqueryResultTest(unittest.TestCase):
 
     def test_query_executes_by_default(self):
-        query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
+        query = "SELECT * FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query)
         self.assertIsNotNone(bqr.result)
