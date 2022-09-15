@@ -39,9 +39,22 @@ class BigQueryResult:
         """Execute BigQuery query and returns result as a list of Python dicts"""
         try:
             job_config = bigquery.QueryJobConfig(use_query_cache=self.use_query_cache)
-            query_result = self.bq_client.query(self.query, job_config=job_config)
+            query_job = self.bq_client.query(self.query, job_config=job_config)
             # todo store query cost
-            self.result = [dict(r) for r in query_result]
+            query_job.result()
+            # Get the destination table for the query results.
+            # All queries write to a destination table. If a destination table is not
+            # specified, then BigQuery populates it with a reference to a temporary
+            # anonymous table after the query completes.
+            destination = query_job.destination
+
+            # Get the schema (and other properties) for the destination table.
+            # A schema is useful for converting from BigQuery types to Python types.
+            destination = self.bq_client.get_table(destination)
+            rows = self.bq_client.list_rows(destination, max_results=1000)
+            for row in rows:
+                self.result.append(dict(row))
+
             return self.result
         except Exception as e:
             print(e)
@@ -49,9 +62,12 @@ class BigQueryResult:
     def result(self):
         """Return the result of the query as a Python list"""
         return self.result
+        # return self.result = [dict(r) for r in query_result]
 
     def dataframe(self):
         """Return the result of the query as a dataframe"""
+        #
+        # return self.result.to_dataframe()
         return pd.DataFrame(self.result)
 
     def metadata(self):
