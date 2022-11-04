@@ -6,7 +6,7 @@ from bigquery_validator.bigquery_result import BigQueryResult
 class BigqueryResultTest(unittest.TestCase):
 
     def test_query_executes_by_default(self):
-        query = "SELECT * FROM `{{ params.project }}.samples.github_timeline`"
+        query = "SELECT * FROM `{{ params.project }}.samples.github_timeline` LIMIT 30000"
 
         bqr = BigQueryResult(query)
         self.assertIsNotNone(bqr.result)
@@ -15,7 +15,7 @@ class BigqueryResultTest(unittest.TestCase):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
 
         bqr = BigQueryResult(query, auto_execute=False)
-        self.assertEquals(bqr.result, [])
+        self.assertEqual(bqr.result, [])
 
     def test_query_metadata_is_not_none(self):
         query = "SELECT count(*) AS nrows FROM `{{ params.project }}.samples.github_timeline`"
@@ -25,7 +25,7 @@ class BigqueryResultTest(unittest.TestCase):
         unique_rows = len(result_metadata['unique_values']['nrows'])
         total_rows = result_metadata['nrows']
         self.assertIsNotNone(result_metadata)
-        self.assertEquals(unique_rows, total_rows)
+        self.assertEqual(unique_rows, total_rows)
 
     def test_query_from_file_metadata_is_not_none(self):
         bqr = BigQueryResult(file_path='./sql/bigquery_result_metadata.sql')
@@ -33,7 +33,7 @@ class BigqueryResultTest(unittest.TestCase):
         unique_rows = len(result_metadata['unique_values']['nrows'])
         total_rows = result_metadata['nrows']
         self.assertIsNotNone(result_metadata)
-        self.assertEquals(unique_rows, total_rows)
+        self.assertEqual(unique_rows, total_rows)
 
     def test_query_metadata_returns_correct_columns(self):
         query = '''
@@ -45,7 +45,7 @@ class BigqueryResultTest(unittest.TestCase):
         bqr = BigQueryResult(query)
         result_metadata = bqr.metadata()
         columns = result_metadata['columns']
-        self.assertEquals(columns, ['name', 'age'])
+        self.assertEqual(columns, ['name', 'age'])
 
     def test_query_metadata_returns_correct_unique_values(self):
         query = '''
@@ -57,13 +57,13 @@ class BigqueryResultTest(unittest.TestCase):
         bqr = BigQueryResult(query)
         result_metadata = bqr.metadata()
         unique_names = result_metadata['unique_values']['name']
-        self.assertEquals(unique_names, ['andrew', 'james'])
+        self.assertEqual(unique_names, ['andrew', 'james'])
 
     def test_query_from_file_metadata_returns_correct_unique_values(self):
         bqr = BigQueryResult(file_path='./sql/bigquery_result_test.sql')
         result_metadata = bqr.metadata()
         unique_names = result_metadata['unique_values']['name']
-        self.assertEquals(unique_names, ['john', 'peter', 'andrew', 'james'])
+        self.assertEqual(unique_names, ['john', 'peter', 'andrew', 'james'])
 
     def test_query_metadata_returns_correct_null_values(self):
         query = '''
@@ -75,10 +75,10 @@ class BigqueryResultTest(unittest.TestCase):
         bqr = BigQueryResult(query)
         result_metadata = bqr.metadata()
         null_names = result_metadata['null_values']['name']
-        self.assertEquals(null_names, 1)
+        self.assertEqual(null_names, 1)
 
         null_age = result_metadata['null_values']['age']
-        self.assertEquals(null_age, 2)
+        self.assertEqual(null_age, 2)
 
     def test_query_metadata_returns_correct_value_counts(self):
         query = '''
@@ -91,7 +91,7 @@ class BigqueryResultTest(unittest.TestCase):
         result_metadata = bqr.metadata()
         value_counts = result_metadata['value_counts']
         name_value_counts = value_counts['name']
-        self.assertEquals(name_value_counts, {'john': 1, 'andrew': 1})
+        self.assertEqual(name_value_counts, {'john': 1, 'andrew': 1})
 
         age_value_counts = value_counts['age']
-        self.assertEquals(age_value_counts, {20: 2})
+        self.assertEqual(age_value_counts, {20: 2})

@@ -45,7 +45,7 @@ class BigQueryResult:
             # todo store query cost
             query_job.result()
             query_result = query_job.result()
-            TOTAL_ROWS = results.total_rows
+            TOTAL_ROWS = query_result.total_rows
 
             # Get the destination table for the query results.
             # All queries write to a destination table. If a destination table is not
