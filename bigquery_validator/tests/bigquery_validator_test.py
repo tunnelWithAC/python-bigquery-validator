@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch, call
 
 from bigquery_validator.bigquery_validator import BigQueryValidator
+from bigquery_validator.bigquery_validator_util import print_failure, print_success
 
 
 class BigqueryValidatorTest(unittest.TestCase):
@@ -64,3 +66,16 @@ class BigqueryValidatorTest(unittest.TestCase):
         query_cost_mb = query_cost['mb']
         self.assertLess(query_cost_gb, 1, 'assert_query_costs_less_than_1_gigabyte')
         self.assertGreater(query_cost_mb, 100, 'assert_query_costs_greater_than_100_megabyte')
+
+
+class BigqueryValidatorTest(unittest.TestCase):
+
+    @patch('builtins.print')
+    def test_print_success():
+        print_success("Query is valid")
+        assert mocked_print.mock_calls == [call('Query is valid')]
+
+    @patch('builtins.print')
+    def test_print_failure():
+        print_success("Query is invalid")
+        assert mocked_print.mock_calls == [call('Query is invalid')]
