@@ -76,4 +76,4 @@ def test_print_success():
 
 # @patch('builtins.print')
 def test_print_failure():
-    print_success("Query is invalid")
+    bigquery_validator_util.print_failure("Query is invalid")
