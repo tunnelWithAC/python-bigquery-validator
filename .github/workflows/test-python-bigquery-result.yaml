@@ -30,7 +30,7 @@ jobs:
         cd bigquery_validator/tests
         coverage run -m pytest tests/bigquery_result_test.py
         coverage report -m
-        COV=$(coverage json --fail-under=80)
+        coverage json --fail-under=80
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
