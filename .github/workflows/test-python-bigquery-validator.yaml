@@ -25,12 +25,12 @@ jobs:
       run: |
         cd bigquery_validator/tests
         pytest bigquery_validator_test.py
-    - name: Check test coverage
-      run: |
-        cd bigquery_validator/tests
-        coverage run -m pytest bigquery_validator_test.py
-        coverage report -m
-        COV=$(coverage json --fail-under=80)
+    # - name: Check test coverage
+    #   run: |
+    #     cd bigquery_validator/tests
+    #     coverage run -m pytest bigquery_validator_test.py
+    #     coverage report -m
+    #     COV=$(coverage json --fail-under=80)
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
