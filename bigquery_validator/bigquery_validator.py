@@ -20,12 +20,12 @@ class BigQueryValidator:
 
     def __init__(self,
                  params={},
-                 return_query_cost_as_dict=False,
+                #  return_query_cost_as_dict=False,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.params = {**self.load_params(), **params}
         self.use_query_cache = use_query_cache
-        self.return_query_cost_as_dict = return_query_cost_as_dict
+        # self.return_query_cost_as_dict = return_query_cost_as_dict
 
 
     def load_params(self):
@@ -114,27 +114,27 @@ class BigQueryValidator:
                 'tb': round(total_bytes / terabyte, 2)
             }
 
-            if total_bytes > terabyte:
-                rounded_total = query_cost['b']
-                byte_type = 'TB'
-            elif total_bytes > gigabyte:
-                rounded_total = query_cost['gb']
-                byte_type = 'GB'
-            elif total_bytes > megabyte:
-                rounded_total = query_cost['mb']
-                byte_type = 'MB'
-            elif total_bytes > kilobyte:
-                rounded_total = query_cost['kb']
-                byte_type = 'KB'
-            else:
-                rounded_total = query_cost['b']
-                byte_type = 'B'
-
-            if self.return_query_cost_as_dict:
-                return True, query_cost
-            else:
-                message = f'This query will process {rounded_total} {byte_type}.'
-                return True, message
+            # if total_bytes > terabyte:
+            #     rounded_total = query_cost['b']
+            #     byte_type = 'TB'
+            # elif total_bytes > gigabyte:
+            #     rounded_total = query_cost['gb']
+            #     byte_type = 'GB'
+            # elif total_bytes > megabyte:
+            #     rounded_total = query_cost['mb']
+            #     byte_type = 'MB'
+            # elif total_bytes > kilobyte:
+            #     rounded_total = query_cost['kb']
+            #     byte_type = 'KB'
+            # else:
+            #     rounded_total = query_cost['b']
+            #     byte_type = 'B'
+            return True, query_cost
+            # if self.return_query_cost_as_dict:
+                
+            # else:
+            #     message = f'This query will process {rounded_total} {byte_type}.'
+            #     return True, message
 
         except Exception as e:
             error_string = str(e)
@@ -169,7 +169,8 @@ class BigQueryValidator:
         try:
             formatted_query = self.render_templated_query(templated_query)
             querv_is_valid, message = self.dry_run_query(formatted_query)
-            logging.info(f'Query is { "valid" if querv_is_valid else "invalid"}. {message}')
+            valid_query_string = "valid" if querv_is_valid else "invalid"
+            logging.info(f'Query is {valid_query_string}. {message}')
             return querv_is_valid, message
         except Exception as e:
             logging.error(e)
