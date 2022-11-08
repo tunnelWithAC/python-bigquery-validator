@@ -58,15 +58,23 @@ class BigqueryValidatorTest(unittest.TestCase):
         query_cost_mb = query_cost['mb']
         self.assertEquals(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
 
-    def test_query_costs_less_than_1_gb(self):
-        bigquery_validator = BigQueryValidator()
+    # def test_query_costs_less_than_1_gb(self):
+    #     bigquery_validator = BigQueryValidator()
+    #     query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
+    #             "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
+    #     _, query_cost = bigquery_validator.validate_query(query)
+    #     query_cost_gb = query_cost['gb']
+    #     query_cost_mb = query_cost['mb']
+    #     self.assertLess(query_cost_gb, 1, 'assert_query_costs_less_than_1_gigabyte')
+    #     self.assertGreater(query_cost_mb, 100, 'assert_query_costs_greater_than_100_megabyte')
+
+    def test_dry_run_query(self):
         query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
+        expected_message = "This query will process 395.51 MB."
                 "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
-        _, query_cost = bigquery_validator.validate_query(query)
-        query_cost_gb = query_cost['gb']
+        _, query_cost = self.bigquery_validator.validate_query(query)
         query_cost_mb = query_cost['mb']
-        self.assertLess(query_cost_gb, 1, 'assert_query_costs_less_than_1_gigabyte')
-        self.assertGreater(query_cost_mb, 100, 'assert_query_costs_greater_than_100_megabyte')
+        self.assertEquals(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
 
 
 class BigqueryValidatorTest(unittest.TestCase):
