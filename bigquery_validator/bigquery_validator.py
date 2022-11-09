@@ -20,12 +20,12 @@ class BigQueryValidator:
 
     def __init__(self,
                  params={},
-                 return_query_cost_as_dict=False,
+                #  return_query_cost_as_dict=False,
                  use_query_cache=False):
         self.bq_client = bigquery.Client()
         self.params = {**self.load_params(), **params}
         self.use_query_cache = use_query_cache
-        self.return_query_cost_as_dict = return_query_cost_as_dict
+        # self.return_query_cost_as_dict = return_query_cost_as_dict
 
 
     def load_params(self):
@@ -113,51 +113,13 @@ class BigQueryValidator:
                 'gb': round(total_bytes / gigabyte, 2),
                 'tb': round(total_bytes / terabyte, 2)
             }
-
-            if total_bytes > terabyte:
-                rounded_total = query_cost['b']
-                byte_type = 'TB'
-            elif total_bytes > gigabyte:
-                rounded_total = query_cost['gb']
-                byte_type = 'GB'
-            elif total_bytes > megabyte:
-                rounded_total = query_cost['mb']
-                byte_type = 'MB'
-            elif total_bytes > kilobyte:
-                rounded_total = query_cost['kb']
-                byte_type = 'KB'
-            else:
-                rounded_total = query_cost['b']
-                byte_type = 'B'
-
-            if self.return_query_cost_as_dict:
-                return True, query_cost
-            else:
-                message = f'This query will process {rounded_total} {byte_type}.'
-                return True, message
-
+            return True, query_cost
         except Exception as e:
             error_string = str(e)
             error_minus_job_url = error_string.split('jobs?prettyPrint=false:')
             split_error = error_minus_job_url[1].split('\n\n')
             syntax_error = split_error[0]
             return False, syntax_error
-
-
-    # TODO: validate output of query
-    # Stolen from Apache Beam
-    # https://github.com/apache/beam/blob/87e11644c44a4c677ec2faa78f50cdffbb33605a/sdks/python/apache_beam/io/gcp/tests/bigquery_matcher.py
-    # @retry.with_exponential_backoff(
-    #       num_retries=MAX_RETRIES,
-    #       retry_filter=retry_on_http_timeout_and_value_error)
-    #   def run_query(self):
-    #     """Run Bigquery query with retry if got error http response"""
-    #     _LOGGER.info('Attempting to perform query %s to BQ', self.query)
-    #     # Create client here since it throws an exception if pickled.
-    #     bigquery_client = bigquery.Client(self.project)
-    #     query_job = bigquery_client.query(self.query)
-    #     rows = query_job.result(timeout=60)
-    #     return [row.values() for row in rows]
 
     def validate_query(self, templated_query):
         """Check if query passed as parameter is valid. If the query contains any Jinja templated params they will
@@ -169,7 +131,8 @@ class BigQueryValidator:
         try:
             formatted_query = self.render_templated_query(templated_query)
             querv_is_valid, message = self.dry_run_query(formatted_query)
-            logging.info(f'Query is { "valid" if querv_is_valid else "invalid"}. {message}')
+            valid_query_string = "valid" if querv_is_valid else "invalid"
+            logging.info(f'Query is {valid_query_string}. {message}')
             return querv_is_valid, message
         except Exception as e:
             logging.error(e)
