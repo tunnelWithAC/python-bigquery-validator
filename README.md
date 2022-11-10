@@ -179,4 +179,4 @@ python -m bigquery_validator validate_query_from_file './valid_query.sql'
 
 ### Github Actions
 
-An example of how to schedule tests using Github Actions can be found in [.github/workflows/example-validate-query-result.yaml]()
+An example of how to schedule tests using Github Actions can be found in `.github/workflows/example-validate-query-result.yaml`
