@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="python-bigquery-validator",
-    version="0.0.10",
+    version="1.0.0",
     author="Conall Daly",
     author_email="conalldalydev@gmail.com",
     description="Python module for validating BigQuery sql queries with support for Jinja templated variables",
