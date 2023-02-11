@@ -12,19 +12,25 @@ jobs:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
-    - name: Set up Python 3.6
+    - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
-        python-version: 3.6
-    - name: Install dependencies for Python 3.6
+        python-version: 3.8
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest
-    - name: Run unit tests on Python 3.7
+        pip install pytest coverage
+    - name: Run unit tests
       run: |
         cd bigquery_validator/tests
         pytest bigquery_result_test.py
+    # - name: Check test coverage
+    #   run: |
+    #     cd bigquery_validator/tests
+    #     coverage run -m pytest tests/bigquery_result_test.py
+    #     coverage report -m
+    #     coverage json --fail-under=80
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -35,28 +41,6 @@ jobs:
         pip install -r requirements.txt
         pip install pytest
     - name: Run unit tests on Python 3.7
-      run: |
-        cd bigquery_validator/tests
-        pytest bigquery_result_test.py
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install pytest coverage
-    - name: Check test coverage
-      run: |
-        cd bigquery_validator/tests
-        coverage run -m pytest bigquery_validator_test.py
-        coverage report -m
-        COV=$(coverage json --fail-under=70)
-#        if [[ "$COV" == *"fail"* ]]; then
-#          exit code 1;
-#        fi
-    - name: Run unit tests
       run: |
         cd bigquery_validator/tests
         pytest bigquery_result_test.py

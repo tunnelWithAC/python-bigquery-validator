@@ -1,3 +1,5 @@
+import math
+
 from google.cloud import bigquery
 import pandas as pd
 
@@ -39,9 +41,27 @@ class BigQueryResult:
         """Execute BigQuery query and returns result as a list of Python dicts"""
         try:
             job_config = bigquery.QueryJobConfig(use_query_cache=self.use_query_cache)
-            query_result = self.bq_client.query(self.query, job_config=job_config)
+            query_job = self.bq_client.query(self.query, job_config=job_config)
             # todo store query cost
-            self.result = [dict(r) for r in query_result]
+            query_job.result()
+            query_result = query_job.result()
+            TOTAL_ROWS = query_result.total_rows
+
+            # Get the destination table for the query results.
+            # All queries write to a destination table. If a destination table is not
+            # specified, then BigQuery populates it with a reference to a temporary
+            # anonymous table after the query completes.
+            destination = query_job.destination
+            destination = self.bq_client.get_table(destination)
+
+            # Retrieve rows and add to result in batches so my laptop doesn't blow up with large result sets
+            MAX_RECORDS_PER_BIGQUERY_REQUEST = 10000
+            row_iterations = math.ceil(TOTAL_ROWS / MAX_RECORDS_PER_BIGQUERY_REQUEST)
+            for i in range(row_iterations):
+                rows = self.bq_client.list_rows(destination, max_results=MAX_RECORDS_PER_BIGQUERY_REQUEST)
+                for row in rows:
+                    self.result.append(dict(row))
+
             return self.result
         except Exception as e:
             print(e)
