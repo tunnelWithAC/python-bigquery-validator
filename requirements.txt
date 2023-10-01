@@ -21,7 +21,7 @@ jeepney==0.7.0
 Jinja2==3.0.1
 keyring==23.0.1
 MarkupSafe==2.0.1
-numpy==1.26.0
+numpy>=1.24.4
 packaging==20.9
 pandas==1.1.5
 pep517==0.11.0
