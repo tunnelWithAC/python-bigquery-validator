@@ -1,4 +1,4 @@
-name: run-bigquery-result-unit-tests
+name: test-build
 on:
   push
 jobs:
