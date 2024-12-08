@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch, call
 
 from bigquery_validator.bigquery_validator import BigQueryValidator
 from bigquery_validator import bigquery_validator_util
@@ -36,11 +35,11 @@ class BigqueryValidatorTest(unittest.TestCase):
     def test_parameterised_query_is_formatted_correctly(self):
         templated_query = "select count(*) from `{{ params.project }}.samples.github_timeline`"
         rendered_query = self.bigquery_validator.render_templated_query(templated_query)
-        self.assertEquals(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
+        self.assertEqual(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
 
     def test_parameterised_query_from_file_is_formatted_correctly(self):
         rendered_query = self.bigquery_validator.render_templated_query_from_file("./test_param_query.sql")
-        self.assertEquals(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
+        self.assertEqual(rendered_query, 'select count(*) from `bigquery-public-data.samples.github_timeline`')
 
     def test_extra_params_are_loaded_from_file(self):
         test_param = self.bigquery_validator.params.get('environment')
@@ -56,15 +55,14 @@ class BigqueryValidatorTest(unittest.TestCase):
                 "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
         _, query_cost = self.bigquery_validator.validate_query(query)
         query_cost_mb = query_cost['mb']
-        self.assertEquals(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
-
+        self.assertEqual(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
 
     def test_dry_run_query(self):
         query = "SELECT repository_url, repository_has_downloads, repository_created_at, repository_has_issues, " \
                 "repository_forks FROM `bigquery-public-data.samples.github_timeline`"
         _, query_cost = self.bigquery_validator.validate_query(query)
         query_cost_mb = query_cost['mb']
-        self.assertEquals(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
+        self.assertEqual(query_cost_mb, 395.51, 'assert_query_cost_returns_correct_expected_processing_size')
 
 
 # @patch('builtins.print')
